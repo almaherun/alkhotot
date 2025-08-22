@@ -1,5 +1,10 @@
-import TypeSetApp from "@/components/typeset-app";
+import AppLayout from "@/components/app-layout";
+import { LibraryPage } from "@/components/library-page";
 
 export default function Home() {
-  return <TypeSetApp />;
+  return (
+    <AppLayout>
+      <LibraryPage />
+    </AppLayout>
+  );
 }
