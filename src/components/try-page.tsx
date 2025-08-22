@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAppState } from '@/lib/app-state';
 import { useTheme } from "@/components/theme-provider";
 import { Textarea } from '@/components/ui/textarea';
@@ -9,18 +10,27 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Palette, Type, CheckSquare, Square, PenSquare } from 'lucide-react';
+import { Palette, Type, CheckSquare, Square, ListPlus } from 'lucide-react';
 import { ColorInput } from '@/components/ui/color-input';
-import Link from 'next/link';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function TryPage() {
   const { fonts } = useAppState();
   const { theme } = useTheme();
+  const searchParams = useSearchParams();
+
   const [previewText, setPreviewText] = useState("الكتابة الإبداعية هي فن يتطلب خيالاً واسعاً");
   const [fontSize, setFontSize] = useState(48);
   const [bgColor, setBgColor] = useState("#ffffff");
   const [textColor, setTextColor] = useState("#111827");
-  const [selectedFonts, setSelectedFonts] = useState<string[]>([]);
+  const [selectedFontIds, setSelectedFontIds] = useState<string[]>([]);
   const [compareMode, setCompareMode] = useState(false);
   
   useEffect(() => {
@@ -32,18 +42,25 @@ export function TryPage() {
       setTextColor("#111827");
     }
   }, [theme]);
+
+  useEffect(() => {
+    const fontIdFromUrl = searchParams.get('fontId');
+    if (fontIdFromUrl) {
+      setSelectedFontIds([fontIdFromUrl]);
+    }
+  }, [searchParams]);
   
-  const handleFontSelection = (fontName: string) => {
-    setSelectedFonts(prev => 
-      prev.includes(fontName) 
-        ? prev.filter(name => name !== fontName)
-        : [...prev, fontName]
+  const handleFontSelection = (fontId: string) => {
+    setSelectedFontIds(prev => 
+      prev.includes(fontId) 
+        ? prev.filter(id => id !== fontId)
+        : [...prev, fontId]
     );
   };
   
-  const fontsToDisplay = compareMode 
-    ? fonts.filter(font => selectedFonts.includes(font.name))
-    : fonts;
+  const fontsToDisplay = selectedFontIds.length > 0
+    ? fonts.filter(font => selectedFontIds.includes(font.id))
+    : [];
 
   return (
     <div className="flex flex-col h-full">
@@ -52,55 +69,82 @@ export function TryPage() {
         <div className="md:col-span-2 space-y-6">
            <Card>
               <CardContent className="p-6">
-                <Label htmlFor="preview-text" className="text-lg font-medium mb-2 block">
-                    <Type className="inline-block ml-2 h-5 w-5" />
-                    النص التجريبي
-                </Label>
-                <Textarea
-                  id="preview-text"
-                  placeholder="اكتب أي نص لمعاينة خطوطك..."
-                  value={previewText}
-                  onChange={(e) => setPreviewText(e.target.value)}
-                  className="h-32 text-lg"
-                />
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-grow">
+                    <Label htmlFor="preview-text" className="text-lg font-medium mb-2 block">
+                        <Type className="inline-block ml-2 h-5 w-5" />
+                        النص التجريبي
+                    </Label>
+                    <Textarea
+                      id="preview-text"
+                      placeholder="اكتب أي نص لمعاينة خطوطك..."
+                      value={previewText}
+                      onChange={(e) => setPreviewText(e.target.value)}
+                      className="h-32 text-lg"
+                    />
+                  </div>
+                  <div className="flex-shrink-0 self-end">
+                     <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline">
+                          <ListPlus className="ml-2 h-4 w-4" />
+                          اختر خط
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56">
+                        <DropdownMenuLabel>الخطوط المتاحة</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {fonts.map(font => (
+                           <DropdownMenuCheckboxItem
+                            key={font.id}
+                            checked={selectedFontIds.includes(font.id)}
+                            onCheckedChange={() => handleFontSelection(font.id)}
+                          >
+                            {font.name}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
               </CardContent>
            </Card>
            
-          <div className="space-y-4">
-            <div 
-              className="p-4 rounded-lg" 
-              style={{ backgroundColor: compareMode ? bgColor : 'transparent' }}
-            >
-              <div className={`grid grid-cols-1 ${compareMode ? 'md:grid-cols-2' : 'md:grid-cols-1'} gap-4`}>
-                {fontsToDisplay.map((font) => (
-                  <Card key={font.id} className="overflow-hidden">
-                    <CardContent className="p-4" style={{ backgroundColor: bgColor }}>
-                        <div className="flex justify-between items-center mb-2">
-                           <span className="text-sm font-semibold">{font.name}</span>
-                           <Checkbox
-                              checked={selectedFonts.includes(font.name)}
-                              onCheckedChange={() => handleFontSelection(font.name)}
-                              disabled={!compareMode}
-                              className={compareMode ? '' : 'hidden'}
-                            />
-                        </div>
-                        <p
-                          className="break-words"
-                          style={{
-                            fontFamily: `'${font.name}', sans-serif`,
-                            fontSize: `${fontSize}px`,
-                            color: textColor,
-                            minHeight: '100px',
-                          }}
-                        >
-                          {previewText}
-                        </p>
-                    </CardContent>
-                  </Card>
-                ))}
+           {fontsToDisplay.length > 0 ? (
+              <div className="space-y-4">
+                <div 
+                  className="p-4 rounded-lg" 
+                  style={{ backgroundColor: compareMode ? bgColor : 'transparent' }}
+                >
+                  <div className={`grid grid-cols-1 ${compareMode ? 'md:grid-cols-2' : 'md:grid-cols-1'} gap-4`}>
+                    {fontsToDisplay.map((font) => (
+                      <Card key={font.id} className="overflow-hidden">
+                        <CardContent className="p-4" style={{ backgroundColor: bgColor }}>
+                            <div className="flex justify-between items-center mb-2">
+                               <span className="text-sm font-semibold">{font.name}</span>
+                            </div>
+                            <p
+                              className="break-words"
+                              style={{
+                                fontFamily: `'${font.name}', sans-serif`,
+                                fontSize: `${fontSize}px`,
+                                color: textColor,
+                                minHeight: '100px',
+                              }}
+                            >
+                              {previewText}
+                            </p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+           ) : (
+             <div className="text-center p-10 border-2 border-dashed rounded-lg">
+                <p className="text-muted-foreground">اختر خطًا من القائمة أعلاه لبدء المعاينة.</p>
+             </div>
+           )}
         </div>
         
         <div className="md:col-span-1 space-y-6">

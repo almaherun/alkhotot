@@ -5,7 +5,7 @@ import { useAppState } from '@/lib/app-state';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Download, Trash2, Heart, Search, PlusCircle } from 'lucide-react';
+import { Download, Trash2, Heart, Search, PlusCircle, PenSquare } from 'lucide-react';
 import Link from 'next/link';
 
 function FontCard({ font, onDelete }: { font: any, onDelete: (id: string) => void }) {
@@ -35,7 +35,7 @@ function FontCard({ font, onDelete }: { font: any, onDelete: (id: string) => voi
       </CardContent>
       <CardFooter className="flex justify-start gap-2 p-4 pt-0">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/try">
+          <Link href={`/try?fontId=${encodeURIComponent(font.id)}`}>
             <PenSquare className="h-4 w-4" />
             <span className="sr-only">تجربة</span>
           </Link>
