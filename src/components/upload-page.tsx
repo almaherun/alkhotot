@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useAppState } from '@/lib/app-state';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { UploadCloud, File, Folder, FileZip } from 'lucide-react';
+import { UploadCloud, File, Folder, FileArchive } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 
 export function UploadPage() {
@@ -72,7 +72,7 @@ export function UploadPage() {
           </CardContent>
         </Card>
         <p className="text-muted-foreground mt-6 text-sm">
-            يدعم <File className="inline-block h-4 w-4 mx-1" />.ttf / <File className="inline-block h-4 w-4 mx-1" />.otf / <FileZip className="inline-block h-4 w-4 mx-1" />.zip
+            يدعم <File className="inline-block h-4 w-4 mx-1" />.ttf / <File className="inline-block h-4 w-4 mx-1" />.otf / <FileArchive className="inline-block h-4 w-4 mx-1" />.zip
         </p>
     </div>
   );

@@ -5,16 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   FileText,
-  Home,
   Menu,
-  Package2,
   UploadCloud,
   Library,
   PenSquare,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ThemeToggle } from "./theme-toggle";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -72,14 +70,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="flex flex-col">
+              <SheetHeader className="mb-4 text-left">
+                <SheetTitle>
+                   <Link href="/" className="flex items-center gap-2 font-semibold">
+                     <FileText className="h-6 w-6 text-primary" />
+                     <span>TypeSet</span>
+                   </Link>
+                </SheetTitle>
+                <SheetDescription>
+                  Upload, preview, and manage your fonts with ease.
+                </SheetDescription>
+              </SheetHeader>
               <nav className="grid gap-2 text-lg font-medium">
-                <Link
-                  href="#"
-                  className="flex items-center gap-2 text-lg font-semibold mb-4"
-                >
-                  <FileText className="h-6 w-6 text-primary" />
-                  <span className="sr-only">TypeSet</span>
-                </Link>
                 {navItems.map(item => <NavLink key={item.href} {...item} />)}
               </nav>
             </SheetContent>
