@@ -1,9 +1,56 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { type Font } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
 import JSZip from 'jszip';
+
+const DB_NAME = 'FontLibraryDB';
+const STORE_NAME = 'fonts';
+
+const openDB = (): Promise<IDBDatabase> => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onerror = () => reject("Error opening DB");
+    request.onsuccess = () => resolve(request.result);
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      }
+    };
+  });
+};
+
+const getFontsFromDB = async (db: IDBDatabase): Promise<Font[]> => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([STORE_NAME], 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAll();
+    request.onerror = () => reject('Error fetching fonts');
+    request.onsuccess = () => resolve(request.result);
+  });
+};
+
+const saveFontToDB = async (db: IDBDatabase, font: Font) => {
+  return new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.put(font);
+    request.onerror = () => reject('Error saving font');
+    request.onsuccess = () => resolve();
+  });
+};
+
+const deleteFontFromDB = async (db: IDBDatabase, fontId: string) => {
+  return new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.delete(fontId);
+    request.onerror = () => reject('Error deleting font');
+    request.onsuccess = () => resolve();
+  });
+};
 
 interface AppState {
   fonts: Font[];
@@ -17,20 +64,42 @@ const AppStateContext = createContext<AppState | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [fonts, setFonts] = useState<Font[]>([]);
-  const [loading, setLoading] = useState(false);
-  const styleTagRef = React.useRef<HTMLStyleElement | null>(null);
+  const [loading, setLoading] = useState(true);
+  const styleTagRef = useRef<HTMLStyleElement | null>(null);
+  const dbRef = useRef<IDBDatabase | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
+    const initDB = async () => {
+      try {
+        const db = await openDB();
+        dbRef.current = db;
+        const storedFonts = await getFontsFromDB(db);
+        setFonts(storedFonts);
+      } catch (error) {
+        console.error("Failed to initialize DB:", error);
+        toast({
+          variant: "destructive",
+          title: "فشل تحميل قاعدة البيانات",
+          description: "لا يمكن تحميل الخطوط المحفوظة.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    initDB();
+    
     const styleTag = document.createElement("style");
     document.head.appendChild(styleTag);
     styleTagRef.current = styleTag;
+
     return () => {
       if (styleTagRef.current) {
         document.head.removeChild(styleTagRef.current);
       }
+      dbRef.current?.close();
     };
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (styleTagRef.current) {
@@ -71,12 +140,22 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             reader.readAsDataURL(file);
         });
 
-        newFonts.push({
+        const fontData = {
           id: `${file.name}-${file.lastModified}`,
           name: fontName,
           file,
           url,
-        });
+        };
+        newFonts.push(fontData);
+
+        if (dbRef.current) {
+          try {
+            await saveFontToDB(dbRef.current, fontData);
+          } catch (error) {
+             console.error("Failed to save font to DB:", error);
+             toast({ variant: "destructive", title: "فشل حفظ الخط" });
+          }
+        }
       } else {
         invalidCount++;
       }
@@ -143,12 +222,20 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   };
   
-  const deleteFont = (fontId: string) => {
-    setFonts((prev) => prev.filter((font) => font.id !== fontId));
-    toast({
-      title: "تم حذف الخط",
-      description: "تم حذف الخط من مكتبتك بنجاح.",
-    });
+  const deleteFont = async (fontId: string) => {
+    if(dbRef.current) {
+      try {
+        await deleteFontFromDB(dbRef.current, fontId);
+        setFonts((prev) => prev.filter((font) => font.id !== fontId));
+        toast({
+          title: "تم حذف الخط",
+          description: "تم حذف الخط من مكتبتك بنجاح.",
+        });
+      } catch (error) {
+        console.error("Failed to delete font from DB:", error);
+        toast({ variant: "destructive", title: "فشل حذف الخط" });
+      }
+    }
   };
 
   const value = {

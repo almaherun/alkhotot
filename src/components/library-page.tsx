@@ -5,7 +5,7 @@ import { useAppState } from '@/lib/app-state';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Download, Trash2, PenSquare, Search, PlusCircle } from 'lucide-react';
+import { Download, Trash2, PenSquare, Search, PlusCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 function FontCard({ font, onDelete }: { font: any, onDelete: (id: string) => void }) {
@@ -56,12 +56,22 @@ function FontCard({ font, onDelete }: { font: any, onDelete: (id: string) => voi
 }
 
 export function LibraryPage() {
-  const { fonts, deleteFont } = useAppState();
+  const { fonts, deleteFont, loading } = useAppState();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredFonts = fonts.filter(font =>
     font.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center text-center p-8">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <h3 className="text-2xl font-bold tracking-tight">جاري تحميل مكتبتك...</h3>
+        <p className="text-sm text-muted-foreground mt-2">لحظات قليلة ويتم عرض خطوطك المحفوظة.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full">
