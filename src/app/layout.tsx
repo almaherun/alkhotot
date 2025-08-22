@@ -7,6 +7,7 @@ import { AppStateProvider } from '@/lib/app-state';
 export const metadata: Metadata = {
   title: 'TypeSet',
   description: 'Upload, preview, and manage your fonts with ease.',
+  manifest: '/manifest.webmanifest',
 };
 
 export default function RootLayout({

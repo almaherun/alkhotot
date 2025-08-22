@@ -1,0 +1,21 @@
+{
+  "name": "TypeSet",
+  "short_name": "TypeSet",
+  "description": "Upload, preview, and manage your fonts with ease.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FCF8FF",
+  "theme_color": "#D1C0EF",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
