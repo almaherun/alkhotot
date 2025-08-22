@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAppState } from '@/lib/app-state';
-import { useTheme } from 'next-themes';
+import { useTheme } from "@/components/theme-provider";
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
