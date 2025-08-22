@@ -3,9 +3,21 @@
   "short_name": "TypeSet",
   "description": "Upload, preview, and manage your fonts with ease.",
   "start_url": "/",
+  "id": "/?homescreen=1",
   "display": "standalone",
   "background_color": "#FCF8FF",
   "theme_color": "#D1C0EF",
+  "orientation": "portrait",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  },
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
@@ -13,9 +25,69 @@
       "type": "image/png"
     },
     {
+      "src": "/icons/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot1.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Upload Fonts"
+    },
+    {
+      "src": "/screenshots/screenshot2.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Font Library"
+    },
+    {
+      "src": "/screenshots/screenshot3.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Try Fonts"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "أضف خط جديد",
+      "short_name": "أضف خط",
+      "description": "Upload a new font file",
+      "url": "/upload",
+      "icons": [
+        {
+          "src": "/icons/shortcut-upload.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "مكتبتي",
+      "short_name": "المكتبة",
+      "description": "View your font library",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/icons/shortcut-library.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }
