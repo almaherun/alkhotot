@@ -9,8 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Palette, Type, CheckSquare, Square, ListPlus } from 'lucide-react';
+import { Palette, Type, ListPlus } from 'lucide-react';
 import { ColorInput } from '@/components/ui/color-input';
 import {
   DropdownMenu,
@@ -31,7 +30,6 @@ export function TryPage() {
   const [bgColor, setBgColor] = useState("#ffffff");
   const [textColor, setTextColor] = useState("#111827");
   const [selectedFontIds, setSelectedFontIds] = useState<string[]>([]);
-  const [compareMode, setCompareMode] = useState(false);
   
   useEffect(() => {
     if (theme === 'dark') {
@@ -114,9 +112,8 @@ export function TryPage() {
               <div className="space-y-4">
                 <div 
                   className="p-4 rounded-lg" 
-                  style={{ backgroundColor: compareMode ? bgColor : 'transparent' }}
                 >
-                  <div className={`grid grid-cols-1 ${compareMode ? 'md:grid-cols-2' : 'md:grid-cols-1'} gap-4`}>
+                  <div className={`grid grid-cols-1 gap-4`}>
                     {fontsToDisplay.map((font) => (
                       <Card key={font.id} className="overflow-hidden">
                         <CardContent className="p-4" style={{ backgroundColor: bgColor }}>
@@ -178,26 +175,6 @@ export function TryPage() {
                             </div>
                           </div>
                       </div>
-                    </div>
-                    <div>
-                      <Label className="flex items-center text-lg font-medium mb-4">
-                         {compareMode ? <CheckSquare className="inline-block ml-2 h-5 w-5" /> : <Square className="inline-block ml-2 h-5 w-5" />}
-                        مقارنة
-                      </Label>
-                       <div className="items-top flex space-x-2 space-x-reverse">
-                          <Checkbox id="compare-mode" checked={compareMode} onCheckedChange={(checked) => setCompareMode(!!checked)} />
-                          <div className="grid gap-1.5 leading-none">
-                            <label
-                              htmlFor="compare-mode"
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              تفعيل وضع المقارنة
-                            </label>
-                            <p className="text-sm text-muted-foreground">
-                              اختر عدة خطوط لعرضها جنبًا إلى جنب.
-                            </p>
-                          </div>
-                        </div>
                     </div>
                 </CardContent>
             </Card>
