@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAppState } from '@/lib/app-state';
 import { useTheme } from "@/components/theme-provider";
 import { Textarea } from '@/components/ui/textarea';
@@ -9,31 +10,24 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Palette, Type, ListPlus } from 'lucide-react';
+import { Palette, Type, ListPlus, ArrowLeft, PlusCircle } from 'lucide-react';
 import { ColorInput } from '@/components/ui/color-input';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 export function TryPage() {
   const { fonts } = useAppState();
   const { theme } = useTheme();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [previewText, setPreviewText] = useState("الكتابة الإبداعية هي فن يتطلب خيالاً واسعاً");
   const [fontSize, setFontSize] = useState(48);
   const [bgColor, setBgColor] = useState("#ffffff");
   const [textColor, setTextColor] = useState("#111827");
-  const [selectedFontIds, setSelectedFontIds] = useState<string[]>([]);
+  const [selectedFontId, setSelectedFontId] = useState<string | null>(null);
   
   useEffect(() => {
     if (theme === 'dark') {
-      setBgColor("#111827");
+      setBgColor("#1E1E1E");
       setTextColor("#f9fafb");
     } else {
       setBgColor("#ffffff");
@@ -44,25 +38,21 @@ export function TryPage() {
   useEffect(() => {
     const fontIdFromUrl = searchParams.get('fontId');
     if (fontIdFromUrl) {
-      setSelectedFontIds([fontIdFromUrl]);
+      setSelectedFontId(fontIdFromUrl);
     }
   }, [searchParams]);
   
-  const handleFontSelection = (fontId: string) => {
-    setSelectedFontIds(prev => 
-      prev.includes(fontId) 
-        ? prev.filter(id => id !== fontId)
-        : [...prev, fontId]
-    );
-  };
-  
-  const fontsToDisplay = selectedFontIds.length > 0
-    ? fonts.filter(font => selectedFontIds.includes(font.id))
-    : [];
+  const selectedFont = fonts.find(font => font.id === selectedFontId);
 
   return (
     <div className="flex flex-col h-full">
-      <h1 className="text-2xl font-bold mb-4">جرب الخطوط</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">جرب الخطوط</h1>
+         <Button variant="ghost" onClick={() => router.back()}>
+            <ArrowLeft className="ml-2 h-4 w-4" />
+            رجوع
+        </Button>
+      </div>
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
            <Card>
@@ -81,65 +71,46 @@ export function TryPage() {
                       className="h-32 text-lg"
                     />
                   </div>
-                  <div className="flex-shrink-0 self-end">
-                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline">
-                          <ListPlus className="ml-2 h-4 w-4" />
-                          اختر خط
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56">
-                        <DropdownMenuLabel>الخطوط المتاحة</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {fonts.map(font => (
-                           <DropdownMenuCheckboxItem
-                            key={font.id}
-                            checked={selectedFontIds.includes(font.id)}
-                            onCheckedChange={() => handleFontSelection(font.id)}
-                          >
-                            {font.name}
-                          </DropdownMenuCheckboxItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
                 </div>
               </CardContent>
            </Card>
            
-           {fontsToDisplay.length > 0 ? (
+           {selectedFont ? (
               <div className="space-y-4">
-                <div 
-                  className="p-4 rounded-lg" 
-                >
-                  <div className={`grid grid-cols-1 gap-4`}>
-                    {fontsToDisplay.map((font) => (
-                      <Card key={font.id} className="overflow-hidden">
-                        <CardContent className="p-4" style={{ backgroundColor: bgColor }}>
-                            <div className="flex justify-between items-center mb-2">
-                               <span className="text-sm font-semibold">{font.name}</span>
-                            </div>
-                            <p
-                              className="break-words"
-                              style={{
-                                fontFamily: `'${font.name}', sans-serif`,
-                                fontSize: `${fontSize}px`,
-                                color: textColor,
-                                minHeight: '100px',
-                              }}
-                            >
-                              {previewText}
-                            </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
+                  <Card className="overflow-hidden">
+                    <CardContent className="p-4" style={{ backgroundColor: bgColor }}>
+                        <div className="flex justify-between items-center mb-2">
+                           <span className="text-sm font-semibold">{selectedFont.name}</span>
+                        </div>
+                        <p
+                          className="break-words"
+                          style={{
+                            fontFamily: `'${selectedFont.name}', sans-serif`,
+                            fontSize: `${fontSize}px`,
+                            color: textColor,
+                            minHeight: '100px',
+                          }}
+                        >
+                          {previewText}
+                        </p>
+                    </CardContent>
+                  </Card>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/">
+                      <PlusCircle className="ml-2 h-4 w-4" />
+                      اختيار أو تغيير الخط
+                    </Link>
+                  </Button>
               </div>
            ) : (
              <div className="text-center p-10 border-2 border-dashed rounded-lg">
-                <p className="text-muted-foreground">اختر خطًا من القائمة أعلاه لبدء المعاينة.</p>
+                <p className="text-muted-foreground mb-4">لم يتم اختيار أي خط بعد.</p>
+                <Button asChild>
+                    <Link href="/">
+                        <ListPlus className="ml-2 h-4 w-4" />
+                        اذهب للمكتبة لاختيار خط
+                    </Link>
+                </Button>
              </div>
            )}
         </div>

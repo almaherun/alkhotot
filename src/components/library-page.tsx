@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { useAppState } from '@/lib/app-state';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Download, Trash2, Heart, Search, PlusCircle, PenSquare } from 'lucide-react';
+import { Download, Trash2, PenSquare, Search, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
 function FontCard({ font, onDelete }: { font: any, onDelete: (id: string) => void }) {
@@ -19,38 +19,36 @@ function FontCard({ font, onDelete }: { font: any, onDelete: (id: string) => voi
   };
   
   return (
-    <Card className="flex flex-col overflow-hidden shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <Card className="flex flex-col overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
       <CardHeader>
-        <CardTitle className="truncate font-headline text-lg">{font.name}</CardTitle>
+        <CardTitle className="font-headline text-2xl truncate">{font.name}</CardTitle>
+        <CardDescription>نموذج عرض الخط</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="w-full p-4 rounded-md bg-muted/50">
-          <p
-            className="break-words text-3xl"
-            style={{ fontFamily: `'${font.name}', sans-serif` }}
-          >
-            الكتابة هنا
+      <CardContent className="flex-grow flex flex-col justify-center">
+        <div
+          className="w-full p-4 rounded-md bg-muted/50"
+          style={{ fontFamily: `'${font.name}', sans-serif` }}
+        >
+          <p className="text-4xl md:text-5xl lg:text-6xl break-words mb-4 text-center">أبجد هوز</p>
+          <p className="text-lg md:text-xl break-words text-center text-muted-foreground">
+            الساحة الفنية كانت دائمًا مرآة
           </p>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-start gap-2 p-4 pt-0">
-        <Button variant="ghost" size="icon" asChild>
+      <CardFooter className="p-4 pt-2 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <Button variant="ghost" asChild>
           <Link href={`/try?fontId=${encodeURIComponent(font.id)}`}>
-            <PenSquare className="h-4 w-4" />
-            <span className="sr-only">تجربة</span>
+            <PenSquare className="ml-2 h-4 w-4" />
+            تجربة
           </Link>
         </Button>
-        <Button variant="ghost" size="icon" onClick={handleDownload}>
-          <Download className="h-4 w-4" />
-          <span className="sr-only">تحميل</span>
+        <Button variant="ghost" onClick={handleDownload}>
+          <Download className="ml-2 h-4 w-4" />
+          تحميل
         </Button>
         <Button variant="ghost" size="icon" onClick={() => onDelete(font.id)}>
           <Trash2 className="h-4 w-4 text-destructive" />
           <span className="sr-only">حذف</span>
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Heart className="h-4 w-4" />
-          <span className="sr-only">المفضلة</span>
         </Button>
       </CardFooter>
     </Card>
@@ -67,8 +65,8 @@ export function LibraryPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between pb-4">
-        <h1 className="text-2xl font-bold">مكتبتي</h1>
+      <div className="flex items-center justify-between pb-6">
+        <h1 className="text-3xl font-bold">مكتبتي</h1>
         <div className="relative w-full max-w-sm">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -81,7 +79,7 @@ export function LibraryPage() {
       </div>
       
       {fonts.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed shadow-sm text-center p-8">
+        <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed shadow-sm text-center p-8 mt-4">
             <h3 className="text-2xl font-bold tracking-tight">مكتبتك فارغة</h3>
             <p className="text-sm text-muted-foreground mt-2 mb-6">
               ليس لديك أي خطوط بعد. ابدأ بإضافة بعض الخطوط.
@@ -94,19 +92,12 @@ export function LibraryPage() {
             </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
           {filteredFonts.map((font) => (
             <FontCard key={font.id} font={font} onDelete={deleteFont} />
           ))}
         </div>
       )}
-
-      <Button asChild className="md:hidden fixed bottom-6 left-6 z-10 rounded-full h-14 w-14 shadow-lg">
-        <Link href="/upload">
-            <PlusCircle className="h-6 w-6" />
-            <span className="sr-only">إضافة خط</span>
-        </Link>
-      </Button>
     </div>
   );
 }
