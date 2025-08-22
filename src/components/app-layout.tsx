@@ -9,6 +9,7 @@ import {
   UploadCloud,
   Library,
   PenSquare,
+  Eye,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/upload", icon: UploadCloud, label: "أضف خط جديد" },
     { href: "/", icon: Library, label: "مكتبتي" },
     { href: "/try", icon: PenSquare, label: "جرب الخطوط" },
+    { href: "/view", icon: Eye, label: "رؤية الخطوط" },
   ];
 
   const NavLink = ({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string; }) => {
