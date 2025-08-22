@@ -7,11 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Palette, Type, CheckSquare, Square } from 'lucide-react';
+import { Palette, Type, CheckSquare, Square, PenSquare } from 'lucide-react';
 import { ColorInput } from '@/components/ui/color-input';
+import Link from 'next/link';
 
 export function TryPage() {
   const { fonts } = useAppState();
@@ -77,12 +77,12 @@ export function TryPage() {
                     <CardContent className="p-4" style={{ backgroundColor: bgColor }}>
                         <div className="flex justify-between items-center mb-2">
                            <span className="text-sm font-semibold">{font.name}</span>
-                            {compareMode && 
-                              <Checkbox
-                                checked={selectedFonts.includes(font.name)}
-                                onCheckedChange={() => handleFontSelection(font.name)}
-                              />
-                            }
+                           <Checkbox
+                              checked={selectedFonts.includes(font.name)}
+                              onCheckedChange={() => handleFontSelection(font.name)}
+                              disabled={!compareMode}
+                              className={compareMode ? '' : 'hidden'}
+                            />
                         </div>
                         <p
                           className="break-words"
